@@ -110,5 +110,35 @@ def notes_edit(note_id):
 
     return flask.render_template("notes-create.html", form=form)
 
+@app.route("/tags/<tag_name>/edit", methods=["GET", "POST"])
+def tags_edit(tag_name):
+    db = models.db
+    # ค้นหา Tag จากชื่อ
+    tag = db.session.execute(
+        db.select(models.Tag).where(models.Tag.name == tag_name)
+    ).scalars().first()
+
+    if not tag:
+        return flask.redirect(flask.url_for("index"))
+
+    # เมื่อกดปุ่ม Save จะเข้ามาทำงานส่วนนี้
+    if flask.request.method == "POST":
+        new_name = flask.request.form.get("new_tag_name")
+        if new_name:
+            tag.name = new_name
+            db.session.commit()
+            return flask.redirect(flask.url_for("tags_view", tag_name=tag.name))
+
+    # เพื่อความรวดเร็ว ใช้ HTML Form ง่ายๆ ในนี้เลยครับ
+    html_form = f"""
+    <h2>Edit Tag: {tag.name}</h2>
+    <form method="POST">
+        <input type="text" name="new_tag_name" value="{tag.name}" required>
+        <button type="submit">Save</button>
+    </form>
+    <br>
+    <a href="/">Back to Home</a>
+    """
+    return html_form
 if __name__ == "__main__":
     app.run(debug=True)

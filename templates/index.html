@@ -15,7 +15,10 @@
     <div class="card-footer text-muted">
       Tags: 
       {% for t in note.tags %}
+        <!-- ลิงก์ไปดู Tag เดิม -->
         <a href="{{ url_for('tags_view', tag_name=t.name) }}">{{ t.name }}</a>
+        <!-- ปุ่มแก้ไข Tag (เพิ่มเข้ามาใหม่) -->
+        <a class="text-warning text-decoration-none fw-bold" style="font-size: 0.85em; margin-right: 8px;" href="{{ url_for('tags_edit', tag_name=t.name) }}">[Edit]</a>
       {% endfor %}
       <br>
       Last update: {{ note.updated_date }}
