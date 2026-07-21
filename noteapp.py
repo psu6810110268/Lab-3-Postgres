@@ -140,5 +140,21 @@ def tags_edit(tag_name):
     <a href="/">Back to Home</a>
     """
     return html_form
+
+@app.route("/notes/<int:note_id>/delete")
+def notes_delete(note_id):
+    db = models.db
+    # ค้นหาโน้ตที่ต้องการลบ
+    note = db.session.execute(
+        db.select(models.Note).where(models.Note.id == note_id)
+    ).scalars().first()
+    
+    # ถ้าเจอโน้ต ให้สั่งลบและเซฟลงฐานข้อมูล
+    if note:
+        db.session.delete(note)
+        db.session.commit()
+        
+    # ลบเสร็จแล้วให้เด้งกลับมาหน้าแรก
+    return flask.redirect(flask.url_for("index"))
 if __name__ == "__main__":
     app.run(debug=True)
