@@ -16,12 +16,13 @@
       Tags: 
       {% for t in note.tags %}
         <a href="{{ url_for('tags_view', tag_name=t.name) }}">{{ t.name }}</a>
-    {% endfor %}
+      {% endfor %}
       <br>
       Last update: {{ note.updated_date }}
+      <br>
+      <a class="btn btn-sm btn-secondary mt-2" href="{{ url_for('notes_edit', note_id=note.id) }}">Edit Note</a>
     </div>
   </div>
 </div>
 {% endfor %}
 {% endblock %}
-

@@ -73,6 +73,42 @@ def tags_view(tag_name):
         notes=notes,
     )
 
+@app.route("/notes/<int:note_id>/edit", methods=["GET", "POST"])
+def notes_edit(note_id):
+    db = models.db
+    note = db.session.execute(
+        db.select(models.Note).where(models.Note.id == note_id)
+    ).scalars().first()
+
+    form = forms.NoteForm(obj=note)
+
+    if form.validate_on_submit():
+        # ยกเลิกการใช้ form.populate_obj(note) แล้วกำหนดค่าเองทีละตัวแทน
+        note.title = form.title.data
+        note.description = form.description.data
+        
+        note.tags.clear() # ล้าง Tag เดิมออกก่อน
+
+        # อัปเดต Tag ใหม่
+        for tag_name in form.tags.data:
+            tag = db.session.execute(
+                db.select(models.Tag).where(models.Tag.name == tag_name)
+            ).scalars().first()
+
+            if not tag:
+                tag = models.Tag(name=tag_name)
+                db.session.add(tag)
+
+            note.tags.append(tag)
+
+        db.session.commit()
+        return flask.redirect(flask.url_for("index"))
+
+    # ดึงรายชื่อ Tag เดิมมาแสดงในช่องกรอกตอนโหลดหน้าเว็บครั้งแรก
+    if flask.request.method == "GET":
+        form.tags.data = [tag.name for tag in note.tags]
+
+    return flask.render_template("notes-create.html", form=form)
 
 if __name__ == "__main__":
     app.run(debug=True)
