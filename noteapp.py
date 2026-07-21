@@ -156,5 +156,29 @@ def notes_delete(note_id):
         
     # ลบเสร็จแล้วให้เด้งกลับมาหน้าแรก
     return flask.redirect(flask.url_for("index"))
+
+@app.route("/tags/<tag_name>/delete")
+def tags_delete(tag_name):
+    db = models.db
+    # ค้นหา Tag ที่ต้องการลบ
+    tag = db.session.execute(
+        db.select(models.Tag).where(models.Tag.name == tag_name)
+    ).scalars().first()
+    
+    if tag:
+        # 1. ดึงข้อมูลโน้ต "ทุกอัน" ที่กำลังใช้ Tag นี้อยู่
+        notes_using_this_tag = db.session.execute(
+            db.select(models.Note).where(models.Note.tags.any(id=tag.id))
+        ).scalars().all()
+        
+        # 2. สั่งลบ Tag นี้ออกจากโน้ตเหล่านั้นทีละอัน (เคลียร์ความสัมพันธ์)
+        for note in notes_using_this_tag:
+            note.tags.remove(tag)
+            
+        # 3. เมื่อไม่มีโน้ตไหนใช้ Tag นี้แล้ว ก็สั่งลบ Tag ออกจากระบบได้เลย!
+        db.session.delete(tag)
+        db.session.commit()
+        
+    return flask.redirect(flask.url_for("index"))
 if __name__ == "__main__":
     app.run(debug=True)

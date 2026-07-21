@@ -17,8 +17,11 @@
       {% for t in note.tags %}
         <!-- ลิงก์ไปดู Tag เดิม -->
         <a href="{{ url_for('tags_view', tag_name=t.name) }}">{{ t.name }}</a>
-        <!-- ปุ่มแก้ไข Tag (เพิ่มเข้ามาใหม่) -->
-        <a class="text-warning text-decoration-none fw-bold" style="font-size: 0.85em; margin-right: 8px;" href="{{ url_for('tags_edit', tag_name=t.name) }}">[Edit]</a>
+        
+        <!-- ปุ่มแก้ไข Tag -->
+        <a class="text-warning text-decoration-none fw-bold" style="font-size: 0.85em; margin-left: 4px;" href="{{ url_for('tags_edit', tag_name=t.name) }}">[Edit]</a>
+        
+        <a class="text-danger text-decoration-none fw-bold" style="font-size: 0.85em; margin-right: 8px;" href="{{ url_for('tags_delete', tag_name=t.name) }}" onclick="return confirm('Are you sure you want to delete this tag?');">[Delete]</a>
       {% endfor %}
       <br>
       Last update: {{ note.updated_date }}
